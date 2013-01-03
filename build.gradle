@@ -1,0 +1,43 @@
+buildscript {
+    repositories {
+        maven { url 'http://repo.jfrog.org/artifactory/gradle-plugins' }
+    }
+    dependencies {
+        classpath(group: 'org.jfrog.buildinfo', name: 'build-info-extractor-gradle', version: '2.0.16')
+    }
+}
+
+apply plugin: 'idea'
+apply plugin: "cpp-lib"
+apply plugin: 'artifactory'
+
+version = '1.0'
+group = 'org.jfrog.example.cpp.external'
+
+idea {
+    module {
+        sourceDirs += [file('src/main/cpp'), file('src/main/headers')]
+    }
+}
+
+artifactory {
+    contextUrl = 'http://10.0.0.126:8080/artifactory'   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        publishPom = false //just to prevent complains
+        repository {
+            repoKey = 'ext-release-local'   //The Artifactory repository key to publish to
+            username = 'admin'          //The publisher user name
+            password = 'password'       //The publisher password
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'libs-releases'  //The Artifactory (preferably virtual) repository key to resolve from
+            maven = false                //Resolve Maven-style artifacts and descriptors (true by default)
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.3'
+}
